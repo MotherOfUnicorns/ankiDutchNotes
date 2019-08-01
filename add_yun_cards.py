@@ -24,13 +24,13 @@ class AnkiDutchDeck():
         model_name = 'dutch_default'
         note_fields = ['Dutch', 'Misc', 'Explanations', 'Examples']
         card_templates = [{'Front': '{{Dutch}}',
-                           'Back' : '{{Misc}}<br>{{Explanations}}'},
-                          {'Front': '{{Dutch}}<br>{{Misc}}',
-                           'Back' : '{{Explanations}}<br>{{Examples}}'},
+                           'Back' : '{{Misc}}<hr><hr>{{Explanations}}'},
+                          {'Front': '{{Dutch}}<hr>{{Misc}}',
+                           'Back' : '{{Explanations}}<hr><hr>{{Examples}}'},
                           {'Front': '{{Explanations}}',
-                           'Back' : '{{Dutch}}<br>{{Misc}}<br>{{Examples}}'},
+                           'Back' : '{{Dutch}}<hr>{{Misc}}<hr><hr>{{Examples}}'},
                           {'Front': '{{Examples}}',
-                           'Back' : '{{Dutch}}<br>{{Misc}}<br>{{Explanations}}'}]
+                           'Back' : '{{Dutch}}<hr>{{Misc}}<hr><hr>{{Explanations}}'}]
         add_model(model_name, note_fields, card_templates)
 
     def add_model_simple(self):

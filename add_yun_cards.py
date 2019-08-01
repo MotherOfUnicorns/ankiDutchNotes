@@ -65,13 +65,32 @@ class AnkiDutchDeck():
             else:
                 self.add_note_simple(note_fields)
         except:
-            print(f'"{word}" already exists in the deck')
+            print(f'"{word}" already exists in deck {self.deck_name}')
 
     def add_note_from_list(self, word_list):
         [self.add_note_from_word(w) for w in word_list]
 
 
 if __name__ == '__main__':
-    word_list = ['hhhsss', 'duits', 'alsjeblieft', 'waterpokken']
+    import argparse
+
+    parser = argparse.ArgumentParser(description='file containing word list')
+    parser.add_argument('-f', '--file',
+                        help='select file containing word list')
+    parser.add_argument('-l', '--list',
+                        help='input word list, separated by comma')
+    args = parser.parse_args()
+
+    word_list = []
+    if args.file is not None:
+        words = open(args.file).read().split('\n')
+        word_list.extend(words)
+    if args.list is not None:
+        words = args.list.strip().split(',')
+        word_list.extend(words)
+
+    # word_list = ['hhhsss', 'duits', 'alsjeblieft', 'waterpokken']
+    if "" in word_list:
+        word_list.remove("")
     ADD = AnkiDutchDeck()
     ADD.add_note_from_list(word_list)

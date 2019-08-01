@@ -12,6 +12,7 @@ def get_mwb_html(word):
     html = requests.get(url)
     return html
 
+
 def get_note_default(word):
     html = get_mwb_html(word)
     doc = lxml.html.fromstring(html.content)
@@ -62,30 +63,9 @@ def get_note_simple(word):
     if ERR_STRING in doc.text_content():
         return None
 
-    table = doc.xpath('//table[@border=0]/tr')
-    dutch = table[0][0].text_content()
-    explanations = table[0][1].text_content()
+    dutch = doc.xpath('//table[@border=0]/tr[1]/td[1]')[0].text_content()
+    explanations = doc.xpath('//table[@border=0]/tr[1]/td[2]')[0].text_content()
 
     notefields = {'Dutch': dutch,
                   'Explanations': explanations}
     return notefields
-
-
-
-# 
-# examples = '<br>'.join([x[0].text_content()
-#                       for x in chain.from_iterable(table_contents)])
-# 
-# explanations = doc.xpath('//div[@class="slider-wrap"]/font/b')
-# num_explanatons = int(len(explanations) / 3)
-# explanations = '<br>'.join(
-#     [' - '.join(
-#         [x.text_content() for x in explanations[3 * ct: 3 * (ct + 1)]])
-#      for ct in range(num_explanatons)])
-# dutch_words = [x.text_content() for x in doc.xpath(
-#                 '//h2/font[@style="font-family:times"]')]
-# if len(dutch_words) > 1:
-#     dutch_words = [word.split()[1:] for word in dutch_words]
-# if not categories:
-#     note = get_note_default('water')
-

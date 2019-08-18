@@ -48,12 +48,16 @@ class AnkiDutchDeck():
     def add_note_simple(self, note_fields):
         add_note(note_fields, self.deck_name, self.simple_model_name)
 
-    def add_note_from_word(self, word):
+    def add_note_from_word(self, word, output_file=None):
         is_default_model = True
         try:
             note_fields = get_note_default(word)
             if note_fields is None:
                 print(f'"{word}" not found in mijnwoordenbook')
+                if output_file:
+                    with open(output_file, 'a') as f:
+                        f.write('\n')
+                        f.write(word)
                 return
         except:
             is_default_model = False
@@ -67,8 +71,8 @@ class AnkiDutchDeck():
         except:
             print(f'"{word}" already exists in deck {self.deck_name}')
 
-    def add_note_from_list(self, word_list):
-        [self.add_note_from_word(w) for w in word_list]
+    def add_note_from_list(self, word_list, output_file=None):
+        [self.add_note_from_word(w, output_file) for w in word_list]
 
 
 if __name__ == '__main__':
@@ -79,6 +83,8 @@ if __name__ == '__main__':
                         help='select file containing word list')
     parser.add_argument('-l', '--list',
                         help='input word list, separated by comma')
+    parser.add_argument('-o', '--output',
+                        help='output unfound words to file')
     args = parser.parse_args()
 
     word_list = []
@@ -93,4 +99,4 @@ if __name__ == '__main__':
     if "" in word_list:
         word_list.remove("")
     ADD = AnkiDutchDeck()
-    ADD.add_note_from_list(word_list)
+    ADD.add_note_from_list(word_list, args.output)

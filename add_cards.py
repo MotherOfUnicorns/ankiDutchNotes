@@ -89,14 +89,13 @@ if __name__ == '__main__':
 
     word_list = []
     if args.file is not None:
-        words = open(args.file).read().split('\n')
+        words = open(args.file).readlines()
         word_list.extend(words)
     if args.list is not None:
         words = args.list.strip().split(',')
         word_list.extend(words)
 
+    word_list = [w.rstrip() for w in word_list if w.rstrip() != '']
     # word_list = ['hhhsss', 'duits', 'alsjeblieft', 'waterpokken']
-    if "" in word_list:
-        word_list.remove("")
     ADD = AnkiDutchDeck()
     ADD.add_note_from_list(word_list, args.output)

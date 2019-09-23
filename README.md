@@ -5,6 +5,7 @@ Automatically creates anki notes with contents scraped from mijnwoordenboek.nl.
 
 requirements
 ------
+* Python 3.6+
 * Anki 2.1+
 * [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on installed on your Anki
 

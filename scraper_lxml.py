@@ -248,9 +248,11 @@ class NoteDefault:
             expressions, equivalents, translations = uitdrukking.parse_expression()
             u_examples_dutch, u_examples_english = uitdrukking.parse_examples()
 
-            explanations = get_html_table(
-                [explanations_dutch, explanations_english]
-            ) + get_html_table([expressions, equivalents, translations])
+            explanations = (
+                get_html_table([explanations_dutch, explanations_english])
+                + "<br><b>expressions</b><br>"
+                + get_html_table([expressions, equivalents, translations])
+            )
             examples = get_html_table(
                 [
                     examples_dutch + u_examples_dutch,
@@ -264,8 +266,8 @@ class NoteDefault:
         notefields = {
             "Dutch": dutch,
             "Misc": misc,
-            "Explanations": '<b>explanations</b><br>' + explanations,
-            "Examples": '<b>examples</b><br>' + examples,
+            "Explanations": "<b>explanations</b><br>" + explanations,
+            "Examples": "<b>examples</b><br>" + examples,
         }
         return notefields
 

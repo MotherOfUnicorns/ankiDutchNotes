@@ -11,7 +11,13 @@ def update_existing_note_in_deck(note_id, deck_name, output_file=None):
     old_note = get_note_by_id(note_id)
 
     word = old_note["fields"]["Dutch"]["value"]
-    word = word.split(";")[0]
+    word = word.split(";")[0].strip()
+    if word.startswith('de '):
+        word = word.split('de ')[1]
+    elif word.startswith('het '):
+        word = word.split('het ')[1]
+    if word.endswith(')'):
+        word = word.split('(')[0]
 
     try:
         new_note = generate_default_note(word)

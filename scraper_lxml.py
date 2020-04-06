@@ -15,14 +15,17 @@ def _join_with_br(l):
 
 def _get_table_row_bgcolor(ct):
     if ct % 2 == 0:
-        return '#FFFFFF'
+        return "#FFFFFF"
     else:
-        return '#FFF8DC'
+        return "#FFF8DC"
 
 
 def _get_html_table(list_of_columnes):
     rows = [f'<td>{"</td> <td>".join(x)}</td>' for x in zip(*list_of_columnes)]
-    columns = [f'<tr bgcolor="{_get_table_row_bgcolor(ct)}">{row}</tr>' for ct, row in enumerate(rows)]
+    columns = [
+        f'<tr bgcolor="{_get_table_row_bgcolor(ct)}">{row}</tr>'
+        for ct, row in enumerate(rows)
+    ]
     columns = " ".join(columns)
     return f"<table>{columns}</table>"
 
@@ -292,6 +295,7 @@ class NoteDefault:
 def generate_default_note(word):
     n = NoteDefault(word)
     return n.generate_notes()
+
 
 def generate_simple_note(word):
     html = get_mwb_html(word)

@@ -1,0 +1,37 @@
+def join_with_br(l):
+    return "<br>".join(l)
+
+
+def _get_table_row_bgcolor(ct):
+    if ct % 2 == 0:
+        return "#FFFFFF"
+    else:
+        return "#FFF8DC"
+
+
+def get_html_table(list_of_columnes):
+    rows = [f'<td>{"</td> <td>".join(x)}</td>' for x in zip(*list_of_columnes)]
+    columns = [
+        f'<tr bgcolor="{_get_table_row_bgcolor(ct)}">{row}</tr>'
+        for ct, row in enumerate(rows)
+    ]
+    columns = " ".join(columns)
+    return f"<table>{columns}</table>"
+
+
+def pad_list(input_list, target_length):
+    input_length = len(input_list)
+    assert target_length >= input_length, "target length should be longer than input"
+
+    if input_length == target_length:
+        return input_list
+
+    return input_list + [""] * (target_length - input_length)
+
+
+class NoExplanationException(Exception):
+    pass
+
+
+class NoExampleException(Exception):
+    pass

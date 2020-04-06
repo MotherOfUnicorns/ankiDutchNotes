@@ -3,9 +3,7 @@ from anki_helpers import (
     find_all_notes_in_deck,
     get_note_by_id,
 )
-from scraper_lxml import get_note_default, get_note_simple
-
-# TODO rename get_note_default to generate_default_note
+from scraper_lxml import generate_default_note, generate_simple_note
 
 
 def update_existing_note_in_deck(note_id, deck_name):
@@ -16,10 +14,10 @@ def update_existing_note_in_deck(note_id, deck_name):
     word = word.split(";")[0]
 
     try:
-        new_note = get_note_default(word)
+        new_note = generate_default_note(word)
         model_name = "dutch_default"
     except:
-        new_note = get_note_simple(word)
+        new_note = generate_simple_note(word)
         model_name = "dutch_simple"
 
     update_note(new_note, deck_name, model_name)

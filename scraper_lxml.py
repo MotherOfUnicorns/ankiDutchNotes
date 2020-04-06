@@ -289,11 +289,11 @@ class NoteDefault:
         return examples_dutch, examples_english
 
 
-def get_note_default(word):
+def generate_default_note(word):
     n = NoteDefault(word)
     return n.generate_notes()
 
-def get_note_simple(word):
+def generate_simple_note(word):
     html = get_mwb_html(word)
     doc = lxml.html.fromstring(html.content)
 

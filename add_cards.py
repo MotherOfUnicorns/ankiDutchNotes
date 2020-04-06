@@ -5,7 +5,7 @@ from anki_helpers import (
     add_model,
     add_note,
 )
-from scraper_lxml import get_note_default, get_note_simple
+from scraper_lxml import generate_default_note, generate_simple_note
 
 
 class AnkiDutchDeck:
@@ -62,7 +62,7 @@ class AnkiDutchDeck:
     def add_note_from_word(self, word, output_file=None):
         is_default_model = True
         try:
-            note_fields = get_note_default(word)
+            note_fields = generate_default_note(word)
             if note_fields is None:
                 print(f'"{word}" not found in mijnwoordenbook')
                 if output_file:
@@ -72,7 +72,7 @@ class AnkiDutchDeck:
                 return
         except:
             is_default_model = False
-            note_fields = get_note_simple(word)
+            note_fields = generate_simple_note(word)
 
         try:
             if is_default_model:

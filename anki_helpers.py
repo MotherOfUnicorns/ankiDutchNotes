@@ -120,9 +120,7 @@ def update_note(note_fields, deck_name, model_name, note_id=None):
     if note_id is None:
         note_id = find_note_by_word(note_fields["Dutch"], deck_name)
 
-    results = invoke(
-        "updateNoteFields", note={"id": note_id, "fields": note_fields}
-    )
+    results = invoke("updateNoteFields", note={"id": note_id, "fields": note_fields})
     return results
 
 

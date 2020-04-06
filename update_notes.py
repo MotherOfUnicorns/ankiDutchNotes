@@ -12,12 +12,12 @@ def update_existing_note_in_deck(note_id, deck_name, output_file=None):
 
     word = old_note["fields"]["Dutch"]["value"]
     word = word.split(";")[0].strip()
-    if word.startswith('de '):
-        word = word.split('de ')[1]
-    elif word.startswith('het '):
-        word = word.split('het ')[1]
-    if word.endswith(')'):
-        word = word.split('(')[0]
+    if word.startswith("de "):
+        word = word.split("de ")[1]
+    elif word.startswith("het "):
+        word = word.split("het ")[1]
+    if word.endswith(")"):
+        word = word.split("(")[0]
 
     try:
         new_note = generate_default_note(word)
@@ -32,7 +32,7 @@ def update_existing_note_in_deck(note_id, deck_name, output_file=None):
     except Exception as e:
         print(f"failed for word [{word}] - {note_id}")
         if output_file:
-            with open(output_file, 'a') as f:
+            with open(output_file, "a") as f:
                 f.write("\n")
                 f.write(word)
 

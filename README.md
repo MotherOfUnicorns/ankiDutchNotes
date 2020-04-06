@@ -23,3 +23,12 @@ how-to
 misc
 ------
 Supports mac and linux, probably also windows
+
+
+update Apr 06, 2020
+------
+* fixed bug where some newlines are missing between different example sentences
+* added prettier html format
+* added `update_notes.py` script for updating existing cards to the new prettier format. Usage:
+    - `python update_notes.py -d [deck_name]` to update notes in the specified deck
+    - use the `-o [output_file_name]` flag to store failed updates in a file

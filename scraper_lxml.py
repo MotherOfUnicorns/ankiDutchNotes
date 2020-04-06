@@ -50,6 +50,7 @@ class NoteDefault:
         start_idx = html_content.find("NL>EN")
         end_idx = html_content.find("Overige bronnen")
 
+        self.input_word = word
         self.html_content = html_content
         self.doc = lxml.html.fromstring(html_content[start_idx:end_idx])
 
@@ -92,7 +93,6 @@ class NoteDefault:
             x.text_content()
             for x in self.doc.xpath(f'//div/font[@style="color:navy;font-size:10pt"]')
         ]
-        # TODO if this is empty (eg for maling, use other sources)
 
         explanations_dutch = [
             x.text_content()
@@ -103,10 +103,12 @@ class NoteDefault:
         ]
 
         if (not explanations_english) and (not explanations_dutch):
-            raise NoExplanationException("No default explanations found on mwb")
+            raise NoExplanationException(
+                f"No default explanations found on mwb for word [{self.input_word}]"
+            )
         if len(explanations_english) != len(explanations_dutch):
             raise ExplanationsDoNotMatchException(
-                "Number of Dutch explanations and English explanations do not match each other"
+                f"Number of Dutch explanations and English explanations do not match each other for word [{self.input_word}]"
             )
 
         explanations = _get_html_table(explanations_dutch, explanations_english)
@@ -124,11 +126,12 @@ class NoteDefault:
         ]
 
         if (not examples_english) and (not examples_dutch):
-            # TODO add word to all exceptions
-            raise NoExampleException("No example sentences found")
+            raise NoExampleException(
+                f"No example sentences found for word [{self.input_word}]"
+            )
         if len(examples_english) != len(examples_dutch):
             raise ExamplesDoNotMatchException(
-                "Examples do not have matchin Dutch and Endlish translations"
+                f"Examples do not have matchin Dutch and Endlish translations for word [{self.input_word}]"
             )
         examples = _get_html_table(examples_dutch, examples_english)
 
@@ -173,10 +176,12 @@ class NoteDefault:
         ]
 
         if (not explanations_english) and (not explanations_dutch):
-            raise NoExplanationException("No explanations found in other sources")
+            raise NoExplanationException(
+                f"No explanations found in other sources for word [{self.input_word}]"
+            )
         if len(explanations_english) != len(explanations_dutch):
             raise ExplanationsDoNotMatchException(
-                "Number of Dutch explanations and English explanations in other sources do not match each other"
+                f"Number of Dutch explanations and English explanations in other sources do not match each other for word [{self.input_word}]"
             )
         explanations = _get_html_table(explanations_dutch, explanations_english)
         return explanations
@@ -203,8 +208,9 @@ class NoteDefault:
         examples_english = [e[1] for e in examples]
 
         if (not examples_english) and (not examples_dutch):
-            # TODO add word to all exceptions
-            raise NoExampleException("No example sentences found in other sources")
+            raise NoExampleException(
+                f"No example sentences found in other sources for word [{self.input_word}]"
+            )
         examples = _get_html_table(examples_dutch, examples_english)
         return examples
 

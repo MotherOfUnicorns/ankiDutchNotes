@@ -5,15 +5,16 @@ from itertools import chain
 
 
 ERR_STRING = "We hebben geen vertalingen voor"
-UITDRUKKING_DEEL = "deel van de uitdrukking"
+# UITDRUKKING_DEEL = "deel van de uitdrukking"
+UITDRUKKING_DEEL = '<a onClick="shoh'
 
 
 def _join_with_br(l):
     return "<br>".join(l)
 
 
-def _get_html_table(dutch, english):
-    rows = [f"<td>{d}</td>  <td>{e}</td>" for d, e in zip(dutch, english)]
+def _get_html_table(list_of_columnes):
+    rows = [f'<td>{"</td> <td>".join(x)}</td>' for x in zip(*list_of_columnes)]
     columns = [f"<tr>{row}</tr>" for row in rows]
     columns = " ".join(columns)
     return f"<table>{columns}</table>"
@@ -41,9 +42,57 @@ def get_mwb_html(word):
     return html
 
 
-class NoteDefault:
-    # TODO seperate uitdrukking
+class NoteExpression:
+    def __init__(self, input_word, html_content):
+        self.input_word = input_word
 
+        start_idx = html_content.find(UITDRUKKING_DEEL)
+        self.html_content = html_content[start_idx:]
+        self.doc = lxml.html.fromstring(self.html_content)
+
+    def parse_expression(self):
+        expressions = [
+            x.text_content()
+            for x in self.doc.xpath(
+                '//a[contains(@onclick, "shoh")]/following-sibling::font[1]'
+            )
+        ]
+
+        equivalents = [
+            x.text_content() for x in self.doc.xpath('//font[@style="color:darkgreen"]')
+        ]
+
+        translations = [
+            x.text_content()
+            for x in self.doc.xpath(
+                '//font[@style="color:darkgreen"]/following-sibling::font[@style="color:navy"][1]'
+            )
+        ]
+
+        assert (len(expressions) == len(equivalents)) and (
+            len(expressions) == len(translations)
+        ), "number of expressions and translations do not match for word [{self.input_word}]"
+
+        return expressions, equivalents, translations
+
+    def parse_examples(self):
+        examples_dutch = [
+            x.text_content()
+            for x in self.doc.xpath(
+                '//font[@style="color:darkgreen"]/following-sibling::font[@style="color:#444"]'
+            )
+        ]
+        examples_english = [
+            x.text_content()
+            for x in self.doc.xpath(
+                '//font[@style="color:darkgreen"]/following-sibling::font[@style="color:#444"]/following-sibling::font[@style="color:navy"]'
+            )
+        ]
+
+        return examples_dutch, examples_english
+
+
+class NoteDefault:
     def __init__(self, word):
         html = get_mwb_html(word)
         html_content = html.content.decode("utf-8")
@@ -111,9 +160,7 @@ class NoteDefault:
                 f"Number of Dutch explanations and English explanations do not match each other for word [{self.input_word}]"
             )
 
-        explanations = _get_html_table(explanations_dutch, explanations_english)
-
-        return explanations
+        return explanations_dutch, explanations_english
 
     def parse_examples(self):
         examples_dutch = [
@@ -133,9 +180,8 @@ class NoteDefault:
             raise ExamplesDoNotMatchException(
                 f"Examples do not have matchin Dutch and Endlish translations for word [{self.input_word}]"
             )
-        examples = _get_html_table(examples_dutch, examples_english)
 
-        return examples
+        return examples_dutch, examples_english
 
     def generate_notes(self):
         if ERR_STRING in self.doc.text_content():
@@ -145,14 +191,35 @@ class NoteDefault:
         misc = self.parse_misc()
 
         try:
-            explanations = self.parse_explanations()
+            explanations_dutch, explanations_english = self.parse_explanations()
         except NoExplanationException:
-            explanations = self.parse_explanations_other_sources()
+            (
+                explanations_dutch,
+                explanations_english,
+            ) = self.parse_explanations_other_sources()
 
         try:
-            examples = self.parse_examples()
+            examples_dutch, examples_english = self.parse_examples()
         except NoExampleException:
-            examples = self.parse_examples_other_sources()
+            examples_dutch, examples_english = self.parse_examples_other_sources()
+
+        if UITDRUKKING_DEEL in self.html_content:
+            uitdrukking = NoteExpression(self.input_word, self.html_content)
+            expressions, equivalents, translations = uitdrukking.parse_expression()
+            u_examples_dutch, u_examples_english = uitdrukking.parse_examples()
+
+            explanations = _get_html_table(
+                [explanations_dutch, explanations_english]
+            ) + _get_html_table([expressions, equivalents, translations])
+            examples = _get_html_table(
+                [
+                    examples_dutch + u_examples_dutch,
+                    examples_english + u_examples_english,
+                ]
+            )
+        else:
+            explanations = _get_html_table([explanations_dutch, explanations_english])
+            examples = _get_html_table([examples_dutch, examples_english])
 
         notefields = {
             "Dutch": dutch,
@@ -183,8 +250,8 @@ class NoteDefault:
             raise ExplanationsDoNotMatchException(
                 f"Number of Dutch explanations and English explanations in other sources do not match each other for word [{self.input_word}]"
             )
-        explanations = _get_html_table(explanations_dutch, explanations_english)
-        return explanations
+
+        return explanations_dutch, explanations_english
 
     def parse_examples_other_sources(self, num_examples=5):
         start_idx = self.html_content.find("Voorbeeldzinnen met `")
@@ -211,8 +278,8 @@ class NoteDefault:
             raise NoExampleException(
                 f"No example sentences found in other sources for word [{self.input_word}]"
             )
-        examples = _get_html_table(examples_dutch, examples_english)
-        return examples
+
+        return examples_dutch, examples_english
 
 
 def get_note_simple(word):

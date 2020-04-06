@@ -13,9 +13,16 @@ def _join_with_br(l):
     return "<br>".join(l)
 
 
+def _get_table_row_bgcolor(ct):
+    if ct % 2 == 0:
+        return '#FFFFFF'
+    else:
+        return '#FFF8DC'
+
+
 def _get_html_table(list_of_columnes):
     rows = [f'<td>{"</td> <td>".join(x)}</td>' for x in zip(*list_of_columnes)]
-    columns = [f"<tr>{row}</tr>" for row in rows]
+    columns = [f'<tr bgcolor="{_get_table_row_bgcolor(ct)}">{row}</tr>' for ct, row in enumerate(rows)]
     columns = " ".join(columns)
     return f"<table>{columns}</table>"
 

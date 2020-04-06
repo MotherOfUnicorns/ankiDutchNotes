@@ -1,4 +1,4 @@
-from mwb_help import (
+from anki_helpers import (
     deck_is_available,
     create_deck,
     model_is_available,

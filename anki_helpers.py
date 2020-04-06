@@ -1,6 +1,7 @@
 import json
 from urllib.request import urlopen, Request
 from urllib.parse import quote, urlencode
+from difflib import SequenceMatcher
 
 
 ANKICONN_VERSION = 6
@@ -81,6 +82,49 @@ def add_note(note_fields, deck_name, model_name):
         tags=["dutch"],
     )
     result = invoke("addNote", note=note_content)
+
+
+def get_note_by_id(note_id):
+    results = invoke("notesInfo", notes=[note_id])
+    return results[0]
+
+
+def find_all_notes_in_deck(deck_name):
+    results = invoke("findNotes", query=f"deck:{deck_name}")
+    return results
+
+
+def find_note_by_word(word, deck_name):
+    results = invoke("findNotes", query=f"deck:{deck_name} {word}")
+
+    if not results:
+        return
+
+    if len(results) == 1:
+        return results[0]
+
+    note_names = [
+        get_note_by_id(note_id)["fields"]["Dutch"]["value"] for note_id in results
+    ]
+    similarities = [
+        SequenceMatcher(None, word, note_name).ratio() for note_name in note_names
+    ]
+    results_sorted_by_similarity = sorted(
+        list(zip(results, similarities)), key=lambda x: x[1]
+    )
+    return results_sorted_by_similarity[-1][0]
+
+
+def update_note(note_fields, deck_name, model_name):
+
+    note_id = find_note_by_word(note_fields["Dutch"], deck_name)
+    if note_id:
+        results = invoke(
+            "updateNoteFields", note={"id": note_id, "fields": note_fields}
+        )
+        return results
+
+    return
 
 
 if __name__ == "__main__":

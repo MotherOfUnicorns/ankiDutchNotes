@@ -148,6 +148,31 @@ class NoteDefault:
 
         return explanations_dutch, explanations_english
 
+    def parse_explanations_other_sources(self):
+        start_idx = self.html_content.find("Overige bronnen")
+        other_sources = lxml.html.fromstring(self.html_content[start_idx:])
+
+        xpath_english = '//table[@border=0]/tr/td[@style="padding-left:20px"]'
+        explanations_english = [
+            x.text_content() for x in other_sources.xpath(xpath_english)
+        ]
+        explanations_dutch = [
+            x.text_content()
+            for x in other_sources.xpath(f"{xpath_english}/preceding-sibling::*")
+        ]
+
+        if (not explanations_english) and (not explanations_dutch):
+            raise NoExplanationException(
+                f"No explanations found in other sources for word [{self.input_word}]"
+            )
+
+        # TODO exact match??
+        target_length = max(len(explanations_dutch), len(explanations_english))
+        explanations_english = pad_list(explanations_english, target_length)
+        explanations_dutch = pad_list(explanations_dutch, target_length)
+
+        return explanations_dutch, explanations_english
+
     def parse_examples(self):
         examples_dutch = [
             x.text_content()
@@ -167,6 +192,34 @@ class NoteDefault:
         target_length = max(len(examples_english), len(examples_dutch))
         examples_english = pad_list(examples_english, target_length)
         examples_dutch = pad_list(examples_dutch, target_length)
+
+        return examples_dutch, examples_english
+
+    def parse_examples_other_sources(self, num_examples=5):
+        start_idx = self.html_content.find("Voorbeeldzinnen met `")
+        other_examples = lxml.html.fromstring(self.html_content[start_idx:])
+
+        examples_url = [
+            x.text_content()
+            for x in other_examples.xpath("//script[contains(., load)]")
+            if "zinnendiv" in x.text_content()
+        ][0]
+        examples_url = examples_url.split('load("')[-1].split('");')[0]
+
+        html_content = requests.get(examples_url).content.decode("utf-8")
+        doc = lxml.html.fromstring(html_content)
+
+        examples = [x.text_content() for x in doc.xpath("//ol/li")]
+        examples = [e[5:].split(" EN: ") for e in examples][
+            : min(len(examples), num_examples)
+        ]
+        examples_dutch = [e[0] for e in examples]
+        examples_english = [e[1] for e in examples]
+
+        if (not examples_english) and (not examples_dutch):
+            raise NoExampleException(
+                f"No example sentences found in other sources for word [{self.input_word}]"
+            )
 
         return examples_dutch, examples_english
 
@@ -211,63 +264,10 @@ class NoteDefault:
         notefields = {
             "Dutch": dutch,
             "Misc": misc,
-            "Explanations": explanations,
-            "Examples": examples,
+            "Explanations": '<b>explanations</b><br>' + explanations,
+            "Examples": '<b>examples</b><br>' + examples,
         }
         return notefields
-
-    def parse_explanations_other_sources(self):
-        start_idx = self.html_content.find("Overige bronnen")
-        other_sources = lxml.html.fromstring(self.html_content[start_idx:])
-
-        xpath_english = '//table[@border=0]/tr/td[@style="padding-left:20px"]'
-        explanations_english = [
-            x.text_content() for x in other_sources.xpath(xpath_english)
-        ]
-        explanations_dutch = [
-            x.text_content()
-            for x in other_sources.xpath(f"{xpath_english}/preceding-sibling::*")
-        ]
-
-        if (not explanations_english) and (not explanations_dutch):
-            raise NoExplanationException(
-                f"No explanations found in other sources for word [{self.input_word}]"
-            )
-
-        # TODO exact match??
-        target_length = max(len(explanations_dutch), len(explanations_english))
-        explanations_english = pad_list(explanations_english, target_length)
-        explanations_dutch = pad_list(explanations_dutch, target_length)
-
-        return explanations_dutch, explanations_english
-
-    def parse_examples_other_sources(self, num_examples=5):
-        start_idx = self.html_content.find("Voorbeeldzinnen met `")
-        other_examples = lxml.html.fromstring(self.html_content[start_idx:])
-
-        examples_url = [
-            x.text_content()
-            for x in other_examples.xpath("//script[contains(., load)]")
-            if "zinnendiv" in x.text_content()
-        ][0]
-        examples_url = examples_url.split('load("')[-1].split('");')[0]
-
-        html_content = requests.get(examples_url).content.decode("utf-8")
-        doc = lxml.html.fromstring(html_content)
-
-        examples = [x.text_content() for x in doc.xpath("//ol/li")]
-        examples = [e[5:].split(" EN: ") for e in examples][
-            : min(len(examples), num_examples)
-        ]
-        examples_dutch = [e[0] for e in examples]
-        examples_english = [e[1] for e in examples]
-
-        if (not examples_english) and (not examples_dutch):
-            raise NoExampleException(
-                f"No example sentences found in other sources for word [{self.input_word}]"
-            )
-
-        return examples_dutch, examples_english
 
 
 def generate_default_note(word):

@@ -115,16 +115,15 @@ def find_note_by_word(word, deck_name):
     return results_sorted_by_similarity[-1][0]
 
 
-def update_note(note_fields, deck_name, model_name):
+def update_note(note_fields, deck_name, model_name, note_id=None):
 
-    note_id = find_note_by_word(note_fields["Dutch"], deck_name)
-    if note_id:
-        results = invoke(
-            "updateNoteFields", note={"id": note_id, "fields": note_fields}
-        )
-        return results
+    if note_id is None:
+        note_id = find_note_by_word(note_fields["Dutch"], deck_name)
 
-    return
+    results = invoke(
+        "updateNoteFields", note={"id": note_id, "fields": note_fields}
+    )
+    return results
 
 
 if __name__ == "__main__":

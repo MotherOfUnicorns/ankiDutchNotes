@@ -37,6 +37,19 @@ def update_existing_note_in_deck(note_id, deck_name, output_file=None):
                 f.write(word)
 
 
+def update_existing_note_by_word(word, deck_name):
+
+    try:
+        new_note = generate_default_note(word)
+        model_name = "dutch_default"
+    except:
+        new_note = generate_simple_note(word)
+        model_name = "dutch_simple"
+
+    print(new_note)
+    return update_note(new_note, deck_name, model_name)
+
+
 if __name__ == "__main__":
     import argparse
     import sys

@@ -265,9 +265,9 @@ class NoteDefault:
 
         notefields = {
             "Dutch": dutch,
-            "Misc": misc,
-            "Explanations": "<b>explanations</b><br>" + explanations,
-            "Examples": "<b>examples</b><br>" + examples,
+            "Misc": misc + "<br>",
+            "Explanations": "<b>explanations</b><br>" + explanations + "<br>",
+            "Examples": "<b>examples</b><br>" + examples + "<br>",
         }
         return notefields
 

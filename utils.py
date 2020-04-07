@@ -18,7 +18,7 @@ def get_html_table(list_of_columnes):
         for ct, row in enumerate(rows)
     ]
     columns = " ".join(columns)
-    return f'<table align="left">{columns}</table>'
+    return f"<table>{columns}</table>"
 
 
 def pad_list(input_list, target_length):
